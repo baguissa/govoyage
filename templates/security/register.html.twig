@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<div class="container-fluid">
+    {{ form_start(form) }}
+    <div class="m-auto" style="max-width:800px">
+        <div class="col">
+            <div class="card">
+            <div class="card-header card-header-primary text-center">
+                <h2 class="card-title">Nouveau compte</h2>
+                <p class="card-category">Créer un compte pour accéder à nos services</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group bmd-form-group">
+                            {{form_row(form.name)}}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group bmd-form-group">
+                            {{form_row(form.surname)}}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                    <div class="form-group bmd-form-group">
+                        {{form_row(form.email)}}
+                    </div>
+                    </div>
+                    <div class="col-md-6">
+                    <div class="form-group bmd-form-group">
+                        {{form_row(form.phone)}}
+                    </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group bmd-form-group">
+                            {{form_row(form.password)}}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        {{form_row(form.roles)}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        {{form_row(form.imageFile)}}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary pull-right">Créer mon compte</button>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-profile">
+                <div class="card-avatar">
+                    {% if user.imageName is defined %}
+                        <img src="{{ vich_uploader_asset(article, 'imageFile') | imagine_filter('thumbnail') }}" alt="{{ article.title }}" class="img-fluid" style="width:100%;">
+                    {% endif %}
+                        
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>
+      
+{% endblock %}

@@ -2,14 +2,24 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Vich\UploaderBundle\Mapping\Annotation\Uploadable;
+use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @UniqueEntity("email")
+ * @UniqueEntity("phone")
+ * @Vich\Uploadable
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -39,9 +49,9 @@ class User
     private $phone;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="json")
      */
-    private $role;
+    private $roles = [];
 
     /**
      * @ORM\Column(type="string", length=50)
@@ -67,6 +77,23 @@ class User
      * @ORM\OneToMany(targetEntity=Car::class, mappedBy="user", cascade={"persist"})
      */
     private $cars;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     *
+     * @var string
+     */
+    private $imageName;
+
+    /**
+     * @Assert\File(
+     *     maxSize="1000k",
+     *     mimeTypes={"image/jpeg","image/png"}
+     * )
+     * @Vich\UploadableField(mapping="user_image", fileNameProperty="imageName")
+     * @var File
+     */
+    private $imageFile;
 
     public function __construct()
     {
@@ -109,6 +136,11 @@ class User
         return $this->email;
     }
 
+    public function getUsername(): ?string
+    {
+        return (string)$this->email;
+    }
+
     public function setEmail(string $email): self
     {
         $this->email = $email;
@@ -124,18 +156,6 @@ class User
     public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
-
-        return $this;
-    }
-
-    public function getRole(): ?string
-    {
-        return $this->role;
-    }
-
-    public function setRole(string $role): self
-    {
-        $this->role = $role;
 
         return $this;
     }
@@ -156,6 +176,7 @@ class User
     {
         return $this->password;
     }
+
 
     public function setPassword(string $password): self
     {
@@ -219,4 +240,67 @@ class User
         return $this;
     }
 
+
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee -every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @param File $imageFile
+     */
+    public function setImageFile(?File $imageFile = null): self
+    {
+        $this->imageFile = $imageFile;
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageName(?string $imageName): self
+    {
+        $this->imageName = $imageName;
+        return $this;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+
+    /**
+     * @see UserInterface
+     */
+    public function getSalt()
+    {
+        // not needed when using the "bcrypt" algorithm in security.yaml
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+    
 }
