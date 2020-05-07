@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CarRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -53,10 +55,16 @@ class Car
      */
     private $user;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Announce::class, mappedBy="car", cascade={"persist"})
+     */
+    private $announces;
+
     public function __construct()
     {
         $this->created_at = new \DateTime();
         $this->updated_at = $this->created_at;
+        $this->announces = new ArrayCollection();
     }
     public function getId(): ?int
     {
@@ -143,6 +151,37 @@ class Car
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Announce[]
+     */
+    public function getAnnounces(): Collection
+    {
+        return $this->announces;
+    }
+
+    public function addAnnounce(Announce $announce): self
+    {
+        if (!$this->announces->contains($announce)) {
+            $this->announces[] = $announce;
+            $announce->setCar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnnounce(Announce $announce): self
+    {
+        if ($this->announces->contains($announce)) {
+            $this->announces->removeElement($announce);
+            // set the owning side to null (unless already changed)
+            if ($announce->getCar() === $this) {
+                $announce->setCar(null);
+            }
+        }
 
         return $this;
     }

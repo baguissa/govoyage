@@ -64,7 +64,7 @@ class User
     private $updated_at;
 
     /**
-     * @ORM\OneToMany(targetEntity=Car::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=Car::class, mappedBy="user", cascade={"persist"})
      */
     private $cars;
 
